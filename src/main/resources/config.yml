@@ -1,0 +1,34 @@
+# Configuration principale
+daily-vial:
+  multiplier: 1.10
+  duration: 120 # En minutes
+  cooldown: 24 # En heures
+
+messages:
+  prefix: "&8[&6ElderFiole&8] &r"
+  vial-name: "&b&lFiole d'XP Métier"
+  vial-lore:
+    - "&7Métier: &e{job}"
+    - "&7Multiplicateur: &a{multiplier}x"
+    - "&7Durée: &b{duration} min"
+    - ""
+    - "&eCLIC DROIT pour activer !"
+  vial-received: "&aVous avez reçu une fiole d'XP pour le métier &e{job} &a!"
+  vial-given: "&aFiole donnée à &e{player} &a!"
+  vial-activated: "&aBoost d'XP activé pour &e{duration} minutes &a!"
+  daily-received: "&aVous avez reçu votre fiole quotidienne !"
+  daily-cooldown: "&cVous devez attendre encore {time} avant de reprendre une fiole."
+  no-job: "&cVous n'avez aucun métier pour recevoir une fiole !"
+  invalid-args: "&cArguments invalides."
+  player-not-found: "&cJoueur introuvable."
+  invalid-multiplier: "&cMultiplicateur invalide."
+  invalid-duration: "&cDurée invalide. Utilisez un nombre en minutes."
+  no-permission: "&cVous n'avez pas la permission d'utiliser cette commande."
+  usage-fiole: "&cUtilisation: /fiole <give|reload> ..."
+  inventory-full: "&cVotre inventaire est plein ! Libérez de la place avant de recevoir votre fiole."
+  boost-already-active: "&cUn boost est déjà actif pour le métier &6{job} &c! Attendez qu'il se termine."
+  reload-success: "&aConfiguration rechargée avec succès !"
+
+# Messages pour l'item
+item:
+  glow: true

@@ -1,0 +1,4 @@
+name: ElderFiole
+version: '1.0-SNAPSHOT'
+main: ar1hurgit.elderFiole.ElderFiole
+api-version: '1.21'
