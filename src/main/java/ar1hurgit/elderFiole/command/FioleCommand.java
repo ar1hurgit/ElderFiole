@@ -24,6 +24,44 @@ public class FioleCommand implements CommandExecutor, TabCompleter {
         this.plugin = plugin;
     }
 
+        return true;
+    }
+
+    private void handleTimeLeft(Player player) {
+        List<ar1hurgit.elderFiole.data.ActiveBoost> boosts = plugin.getBoostManager().getPlayerBoosts(player);
+        
+        // Filter out expired one just in case cleanup hasn't run yet
+        List<ar1hurgit.elderFiole.data.ActiveBoost> active = boosts.stream()
+                .filter(b -> !b.isExpired())
+                .collect(Collectors.toList());
+
+        String prefix = plugin.getConfig().getString("messages.prefix", "&8[&6ElderFiole&8] &r");
+
+        if (active.isEmpty()) {
+            String message = plugin.getConfig().getString("messages.no-active-boosts", "&cVous n'avez aucun boost actif.");
+            player.sendMessage(ChatColor.translateAlternateColorCodes('&', prefix + message));
+            return;
+        }
+
+        String header = plugin.getConfig().getString("messages.boost-time-header", "&eVos boosts actifs:");
+        player.sendMessage(ChatColor.translateAlternateColorCodes('&', prefix + header));
+
+        String format = plugin.getConfig().getString("messages.boost-time-format", "&7- &6{job} &7: &e{time}");
+
+        for (ar1hurgit.elderFiole.data.ActiveBoost boost : active) {
+            long remaining = boost.getExpirationTime() - System.currentTimeMillis();
+            long minutes = remaining / 60000;
+            long seconds = (remaining % 60000) / 1000;
+
+            String timeStr = String.format("%02dm %02ds", minutes, seconds);
+            String line = format.replace("{job}", boost.getJobName())
+                                .replace("{time}", timeStr)
+                                .replace("{multiplier}", String.valueOf(boost.getMultiplier()));
+            
+            player.sendMessage(ChatColor.translateAlternateColorCodes('&', line));
+        }
+    }
+
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
         if (args.length > 0 && args[0].equalsIgnoreCase("reload")) {
@@ -34,11 +72,28 @@ public class FioleCommand implements CommandExecutor, TabCompleter {
             }
 
             plugin.reloadConfig();
+            
+            // Reload boosts just in case of weird state, though not strictly necessary for config reload
+            // plugin.getBoostManager().loadBoosts(); 
 
             String message = plugin.getConfig().getString("messages.reload-success",
                     "&aConfiguration rechargée !");
             String prefix = plugin.getConfig().getString("messages.prefix", "&8[&6ElderFiole&8] &r");
             sender.sendMessage(ChatColor.translateAlternateColorCodes('&', prefix + message));
+            return true;
+        }
+
+        if (args.length == 1 && args[0].equalsIgnoreCase("timeleft")) {
+            if (!(sender instanceof Player)) {
+                sender.sendMessage(ChatColor.RED + "Seul un joueur peut utiliser cette commande.");
+                return true;
+            }
+            if (!sender.hasPermission("elderfiole.fiole.timeleft")) { // New permission
+                 String message = plugin.getConfig().getString("messages.no-permission", "&cPas de permission.");
+                 sender.sendMessage(ChatColor.translateAlternateColorCodes('&', message));
+                 return true;
+            }
+            handleTimeLeft((Player) sender);
             return true;
         }
 
@@ -50,7 +105,7 @@ public class FioleCommand implements CommandExecutor, TabCompleter {
 
         if (args.length != 6 || !args[0].equalsIgnoreCase("give")) {
             String usage = plugin.getConfig().getString("messages.usage-fiole",
-                    "&cUtilisation: /fiole <give|reload> ...");
+                    "&cUtilisation: /fiole <give|reload|timeleft> ...");
             sender.sendMessage(ChatColor.translateAlternateColorCodes('&', usage));
             return true;
         }
@@ -145,6 +200,8 @@ public class FioleCommand implements CommandExecutor, TabCompleter {
                 completions.add("give");
             if (sender.hasPermission("elderfiole.reload"))
                 completions.add("reload");
+            if (sender.hasPermission("elderfiole.fiole.timeleft"))
+                completions.add("timeleft");
         } else if (args.length == 2) {
             if (args[0].equalsIgnoreCase("give")) {
                 completions.add("1.5");

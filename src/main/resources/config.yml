@@ -28,7 +28,11 @@ messages:
   inventory-full: "&cVotre inventaire est plein ! Libérez de la place avant de recevoir votre fiole."
   boost-already-active: "&cUn boost est déjà actif pour le métier &6{job} &c! Attendez qu'il se termine."
   reload-success: "&aConfiguration rechargée avec succès !"
+  no-active-boosts: "&cVous n'avez aucun boost actif."
+  boost-time-header: "&eVos boosts actifs:"
+  boost-time-format: "&7- &6{job} &7: &e{time}"
 
 # Messages pour l'item
 item:
   glow: true
+  custom-model-data: 6235523

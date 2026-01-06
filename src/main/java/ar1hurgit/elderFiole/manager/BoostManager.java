@@ -160,6 +160,10 @@ public class BoostManager {
         return activeJobBoosts;
     }
 
+    public List<ActiveBoost> getPlayerBoosts(Player player) {
+        return activeBoosts.getOrDefault(player.getUniqueId(), new ArrayList<>());
+    }
+
     public void clearPlayerBoosts(UUID playerId) {
         activeBoosts.remove(playerId);
     }

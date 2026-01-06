@@ -51,6 +51,12 @@ public class VialItem {
             meta.addItemFlags(ItemFlag.HIDE_ENCHANTS);
         }
 
+        // Set CustomModelData if configured
+        int activeModelData = plugin.getConfig().getInt("item.custom-model-data", 0);
+        if (activeModelData != 0) {
+            meta.setCustomModelData(activeModelData);
+        }
+
         // Store data in PersistentDataContainer
         PersistentDataContainer container = meta.getPersistentDataContainer();
         NamespacedKey vialKey = new NamespacedKey(plugin, VIAL_KEY);
