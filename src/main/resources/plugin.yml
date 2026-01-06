@@ -2,3 +2,17 @@ name: ElderFiole
 version: '1.0-SNAPSHOT'
 main: ar1hurgit.elderFiole.ElderFiole
 api-version: '1.21'
+commands:
+  fiole:
+    description: Commande principale pour ElderFiole
+    usage: /fiole <give|timeleft|reload>
+permissions:
+  elderfiole.fiole.give:
+    description: Permet de donner des fioles
+    default: op
+  elderfiole.fiole.timeleft:
+    description: Permet de voir le temps restant des boosts
+    default: true
+  elderfiole.reload:
+    description: Permet de recharger le plugin
+    default: op
