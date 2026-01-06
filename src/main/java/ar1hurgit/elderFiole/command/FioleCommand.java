@@ -24,8 +24,7 @@ public class FioleCommand implements CommandExecutor, TabCompleter {
         this.plugin = plugin;
     }
 
-        return true;
-    }
+
 
     private void handleTimeLeft(Player player) {
         List<ar1hurgit.elderFiole.data.ActiveBoost> boosts = plugin.getBoostManager().getPlayerBoosts(player);

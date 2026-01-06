@@ -1,5 +1,10 @@
 package ar1hurgit.elderFiole;
 
+import ar1hurgit.elderFiole.command.FioleCommand;
+import ar1hurgit.elderFiole.listener.JobsExpBoostListener;
+import ar1hurgit.elderFiole.listener.VialInteractListener;
+import ar1hurgit.elderFiole.manager.BoostManager;
+import ar1hurgit.elderFiole.manager.DailyCooldownManager;
 import org.bukkit.plugin.java.JavaPlugin;
 
 public final class ElderFiole extends JavaPlugin {
@@ -20,11 +25,11 @@ public final class ElderFiole extends JavaPlugin {
         this.boostManager.loadBoosts();
 
         // Register commands
-        getCommand("fiole").setExecutor(new ar1hurgit.elderFiole.command.FioleCommand(this));
+        getCommand("fiole").setExecutor(new FioleCommand(this));
         
         // Register listeners
-        getServer().getPluginManager().registerEvents(new ar1hurgit.elderFiole.listener.VialInteractListener(this), this);
-        getServer().getPluginManager().registerEvents(new ar1hurgit.elderFiole.listener.JobsExpBoostListener(this), this);
+        getServer().getPluginManager().registerEvents(new VialInteractListener(this), this);
+        getServer().getPluginManager().registerEvents(new JobsExpBoostListener(this), this);
 
         getLogger().info("ElderFiole enabled!");
     }
@@ -45,3 +50,4 @@ public final class ElderFiole extends JavaPlugin {
     public DailyCooldownManager getCooldownManager() {
         return cooldownManager;
     }
+}

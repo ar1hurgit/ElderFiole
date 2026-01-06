@@ -12,10 +12,14 @@ repositories {
         name = "papermc-repo"
         url = "https://repo.papermc.io/repository/maven-public/"
     }
+    maven { url "https://jitpack.io" }
 }
 
 dependencies {
     compileOnly("io.papermc.paper:paper-api:1.21.4-R0.1-SNAPSHOT")
+    compileOnly("com.github.Zrips:Jobs:v5.2.2.3") {
+        transitive = false
+    }
 }
 
 tasks {
