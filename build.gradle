@@ -4,7 +4,7 @@ plugins {
 }
 
 group = 'ar1hurgit'
-version = '1.0-SNAPSHOT'
+version = 'V1.0'
 
 repositories {
     mavenCentral()

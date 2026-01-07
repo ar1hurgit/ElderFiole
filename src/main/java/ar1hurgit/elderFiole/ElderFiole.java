@@ -26,6 +26,7 @@ public final class ElderFiole extends JavaPlugin {
 
         // Register commands
         getCommand("fiole").setExecutor(new FioleCommand(this));
+        getCommand("dailyfiole").setExecutor(new ar1hurgit.elderFiole.command.DailyFioleCommand(this));
         
         // Register listeners
         getServer().getPluginManager().registerEvents(new VialInteractListener(this), this);

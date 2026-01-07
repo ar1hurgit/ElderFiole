@@ -6,6 +6,10 @@ commands:
   fiole:
     description: Commande principale pour ElderFiole
     usage: /fiole <give|timeleft|reload>
+  dailyfiole:
+    description: Permet de récupérer une fiole aléatoire
+    usage: /dailyfiole
+    permission: elderfiole.dailyfiole
 permissions:
   elderfiole.fiole.give:
     description: Permet de donner des fioles

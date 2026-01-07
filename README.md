@@ -31,6 +31,7 @@
 | `/fiole give <multiplicateur> <job> <durée> <joueur> <quantité>` | `elderfiole.fiole.give` | Donner des fioles à un joueur. |
 | `/fiole timeleft` | `elderfiole.fiole.timeleft` | Voir le temps restant des boosts actifs. |
 | `/fiole reload` | `elderfiole.reload` | Recharger la configuration. |
+| `/dailyfiole` | `elderfiole.dailyfiole` | Récupérer une fiole aléatoire (1x par jour). |
 
 ### Exemples
 *   Donner un boost x2 pendant 30 minutes pour le métier Miner :
