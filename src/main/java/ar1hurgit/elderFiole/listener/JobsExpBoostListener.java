@@ -30,7 +30,13 @@ public class JobsExpBoostListener implements Listener {
             return;
         }
 
-        double totalMultiplier = plugin.getBoostManager().getTotalMultiplier(player, job);
+        // Calculer le multiplicateur total (fioles + perles de métier)
+
+
+        double boostMultiplier = plugin.getBoostManager().getTotalMultiplier(player, job);
+        double itemMultiplier = plugin.getJobBoostItemManager().getJobBoostMultiplier(player, job);
+
+        double totalMultiplier = boostMultiplier * itemMultiplier;
 
         if (totalMultiplier > 1.0) {
             double originalExp = event.getExp();

@@ -4,8 +4,6 @@ import ar1hurgit.elderFiole.ElderFiole;
 import ar1hurgit.elderFiole.data.ActiveBoost;
 import com.gamingmesh.jobs.container.Job;
 import org.bukkit.Bukkit;
-import org.bukkit.configuration.ConfigurationSection;
-import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
 
 import java.util.*;
@@ -42,84 +40,53 @@ public class BoostManager {
     }
 
     public void saveBoosts() {
-        FileConfiguration data = plugin.getCooldownManager().getDataConfig();
+        // Nettoyer les boosts expirés
+        plugin.getDatabaseManager().clearExpiredBoosts();
 
-        // Always clear old boosts to ensure clean state
-        data.set("active-boosts", null);
-
-        if (activeBoosts.isEmpty()) {
-            plugin.getCooldownManager().saveData();
-            return;
-        }
-
+        // Sauvegarder tous les boosts actifs
         int savedCount = 0;
         for (Map.Entry<UUID, List<ActiveBoost>> entry : activeBoosts.entrySet()) {
-            String uuidInfo = entry.getKey().toString();
-            List<String> boostsData = new ArrayList<>();
+            // D'abord supprimer les anciens boosts du joueur
+            plugin.getDatabaseManager().clearPlayerBoosts(entry.getKey());
 
+            // Puis sauvegarder les nouveaux
             for (ActiveBoost boost : entry.getValue()) {
                 if (!boost.isExpired()) {
-                    // Format: JobName;Multiplier;ExpirationTime
-                    String serialized = boost.getJobName() + ";" + boost.getMultiplier() + ";"
-                            + boost.getExpirationTime();
-                    boostsData.add(serialized);
+                    plugin.getDatabaseManager().saveActiveBoost(entry.getKey(), boost);
                     savedCount++;
                 }
             }
-
-            if (!boostsData.isEmpty()) {
-                data.set("active-boosts." + uuidInfo, boostsData);
-            }
         }
 
-        plugin.getCooldownManager().saveData();
-        plugin.getLogger().info("[ElderFiole] Sauvegarde de " + savedCount + " boosts actifs.");
+        plugin.getLogger().info("[ElderFiole] Sauvegarde de " + savedCount + " boosts actifs dans SQLite.");
     }
 
     public void loadBoosts() {
-        FileConfiguration data = plugin.getCooldownManager().getDataConfig();
-        if (!data.contains("active-boosts")) {
-            plugin.getLogger().info("[ElderFiole] Aucun boost actif à restaurer.");
-            return;
-        }
-
-        ConfigurationSection boostsSection = data.getConfigurationSection("active-boosts");
-        if (boostsSection == null)
-            return;
+        // Charger uniquement les boosts des joueurs en ligne
+        Map<UUID, List<ActiveBoost>> loadedBoosts = plugin.getDatabaseManager().loadActiveBoosts();
 
         int loadedCount = 0;
-        for (String uuidStr : boostsSection.getKeys(false)) {
-            try {
-                UUID uuid = UUID.fromString(uuidStr);
-                List<String> boostsList = data.getStringList("active-boosts." + uuidStr);
-                List<ActiveBoost> loadedBoosts = new ArrayList<>();
-
-                for (String boostStr : boostsList) {
-                    try {
-                        String[] parts = boostStr.split(";");
-                        if (parts.length == 3) {
-                            String jobName = parts[0];
-                            double multiplier = Double.parseDouble(parts[1]);
-                            long expiration = Long.parseLong(parts[2]);
-
-                            if (expiration > System.currentTimeMillis()) {
-                                loadedBoosts.add(new ActiveBoost(jobName, multiplier, expiration));
-                                loadedCount++;
-                            }
-                        }
-                    } catch (Exception e) {
-                        plugin.getLogger().warning("[ElderFiole] Erreur format boost: " + boostStr);
-                    }
-                }
-
-                if (!loadedBoosts.isEmpty()) {
-                    activeBoosts.put(uuid, loadedBoosts);
-                }
-            } catch (IllegalArgumentException e) {
-                plugin.getLogger().warning("[ElderFiole] UUID invalide: " + uuidStr);
+        for (Map.Entry<UUID, List<ActiveBoost>> entry : loadedBoosts.entrySet()) {
+            // Ne charger que si le joueur est en ligne
+            Player player = Bukkit.getPlayer(entry.getKey());
+            if (player != null && player.isOnline()) {
+                activeBoosts.put(entry.getKey(), entry.getValue());
+                loadedCount += entry.getValue().size();
             }
         }
-        plugin.getLogger().info("[ElderFiole] Restauration de " + loadedCount + " boosts actifs.");
+
+        plugin.getLogger().info("[ElderFiole] Restauration de " + loadedCount + " boosts actifs depuis SQLite.");
+    }
+
+    public void loadPlayerBoosts(UUID playerUuid) {
+        // Charger les boosts d'un joueur spécifique lors de sa connexion
+        Map<UUID, List<ActiveBoost>> loadedBoosts = plugin.getDatabaseManager().loadActiveBoosts();
+        List<ActiveBoost> playerBoosts = loadedBoosts.get(playerUuid);
+
+        if (playerBoosts != null && !playerBoosts.isEmpty()) {
+            activeBoosts.put(playerUuid, playerBoosts);
+            plugin.getLogger().info("[ElderFiole] Chargement de " + playerBoosts.size() + " boosts pour " + playerUuid);
+        }
     }
 
     public double getTotalMultiplier(Player player, Job job) {

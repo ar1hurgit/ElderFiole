@@ -4,7 +4,7 @@ plugins {
 }
 
 group = 'ar1hurgit'
-version = 'V1.0'
+version = 'V2.0'
 
 repositories {
     mavenCentral()
@@ -20,6 +20,7 @@ dependencies {
     compileOnly("com.github.Zrips:Jobs:v5.2.2.3") {
         transitive = false
     }
+    implementation("org.xerial:sqlite-jdbc:3.47.1.0")
 }
 
 tasks {

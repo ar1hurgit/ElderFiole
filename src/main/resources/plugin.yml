@@ -10,6 +10,22 @@ commands:
     description: Permet de récupérer une fiole aléatoire
     usage: /dailyfiole
     permission: elderfiole.dailyfiole
+  elderfiole:
+    description: Commande pour gérer les amulettes de métier
+    usage: /elderfiole give <métier> <multiplicateur> [joueur] [temps]
+    permission: elderfiole.give
+  amulette:
+    description: Active/désactive l'amulette de métier en main secondaire
+    usage: /amulette toggle
+    permission: elderfiole.amulette.toggle
+  givefiole:
+    description: Donne une fiole d'XP métier à un joueur
+    usage: /givefiole <joueur> <métier> <multiplicateur> <durée> [quantité]
+    permission: elderfiole.fiole.give
+  giveperle:
+    description: Donne une amulette (perle) de métier à un joueur
+    usage: /giveperle <joueur> <métier> <multiplicateur> [durée]
+    permission: elderfiole.give
 permissions:
   elderfiole.fiole.give:
     description: Permet de donner des fioles
@@ -20,3 +36,9 @@ permissions:
   elderfiole.reload:
     description: Permet de recharger le plugin
     default: op
+  elderfiole.give:
+    description: Permet de donner des amulettes de métier
+    default: op
+  elderfiole.amulette.toggle:
+    description: Permet d'activer/désactiver les amulettes de métier
+    default: true

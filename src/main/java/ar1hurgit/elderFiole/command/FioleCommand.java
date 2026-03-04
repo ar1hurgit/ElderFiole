@@ -24,11 +24,9 @@ public class FioleCommand implements CommandExecutor, TabCompleter {
         this.plugin = plugin;
     }
 
-
-
     private void handleTimeLeft(Player player) {
         List<ar1hurgit.elderFiole.data.ActiveBoost> boosts = plugin.getBoostManager().getPlayerBoosts(player);
-        
+
         // Filter out expired one just in case cleanup hasn't run yet
         List<ar1hurgit.elderFiole.data.ActiveBoost> active = boosts.stream()
                 .filter(b -> !b.isExpired())
@@ -37,7 +35,8 @@ public class FioleCommand implements CommandExecutor, TabCompleter {
         String prefix = plugin.getConfig().getString("messages.prefix", "&8[&6ElderFiole&8] &r");
 
         if (active.isEmpty()) {
-            String message = plugin.getConfig().getString("messages.no-active-boosts", "&cVous n'avez aucun boost actif.");
+            String message = plugin.getConfig().getString("messages.no-active-boosts",
+                    "&cVous n'avez aucun boost actif.");
             player.sendMessage(ChatColor.translateAlternateColorCodes('&', prefix + message));
             return;
         }
@@ -54,9 +53,9 @@ public class FioleCommand implements CommandExecutor, TabCompleter {
 
             String timeStr = String.format("%02dm %02ds", minutes, seconds);
             String line = format.replace("{job}", boost.getJobName())
-                                .replace("{time}", timeStr)
-                                .replace("{multiplier}", String.valueOf(boost.getMultiplier()));
-            
+                    .replace("{time}", timeStr)
+                    .replace("{multiplier}", String.valueOf(boost.getMultiplier()));
+
             player.sendMessage(ChatColor.translateAlternateColorCodes('&', line));
         }
     }
@@ -71,9 +70,10 @@ public class FioleCommand implements CommandExecutor, TabCompleter {
             }
 
             plugin.reloadConfig();
-            
-            // Reload boosts just in case of weird state, though not strictly necessary for config reload
-            // plugin.getBoostManager().loadBoosts(); 
+
+            // Reload boosts just in case of weird state, though not strictly necessary for
+            // config reload
+            // plugin.getBoostManager().loadBoosts();
 
             String message = plugin.getConfig().getString("messages.reload-success",
                     "&aConfiguration rechargée !");
@@ -88,9 +88,9 @@ public class FioleCommand implements CommandExecutor, TabCompleter {
                 return true;
             }
             if (!sender.hasPermission("elderfiole.fiole.timeleft")) { // New permission
-                 String message = plugin.getConfig().getString("messages.no-permission", "&cPas de permission.");
-                 sender.sendMessage(ChatColor.translateAlternateColorCodes('&', message));
-                 return true;
+                String message = plugin.getConfig().getString("messages.no-permission", "&cPas de permission.");
+                sender.sendMessage(ChatColor.translateAlternateColorCodes('&', message));
+                return true;
             }
             handleTimeLeft((Player) sender);
             return true;
@@ -102,9 +102,9 @@ public class FioleCommand implements CommandExecutor, TabCompleter {
             return true;
         }
 
-        if (args.length != 6 || !args[0].equalsIgnoreCase("give")) {
+        if (args.length < 5 || !args[0].equalsIgnoreCase("give")) {
             String usage = plugin.getConfig().getString("messages.usage-fiole",
-                    "&cUtilisation: /fiole <give|reload|timeleft> ...");
+                    "&cUtilisation: /fiole <give|reload|timeleft> <multiplier> <job> <duration> <player> [amount]");
             sender.sendMessage(ChatColor.translateAlternateColorCodes('&', usage));
             return true;
         }
@@ -157,18 +157,20 @@ public class FioleCommand implements CommandExecutor, TabCompleter {
             return true;
         }
 
-        // Parse amount
-        int amount;
-        try {
-            amount = Integer.parseInt(args[5]);
-            if (amount < 1 || amount > 64) {
-                throw new NumberFormatException();
+        // Parse amount (optional)
+        int amount = 1;
+        if (args.length >= 6) {
+            try {
+                amount = Integer.parseInt(args[5]);
+                if (amount < 1 || amount > 64) {
+                    throw new NumberFormatException();
+                }
+            } catch (NumberFormatException e) {
+                String message = plugin.getConfig().getString("messages.invalid-number",
+                        "&cNombre invalide.");
+                sender.sendMessage(ChatColor.translateAlternateColorCodes('&', message));
+                return true;
             }
-        } catch (NumberFormatException e) {
-            String message = plugin.getConfig().getString("messages.invalid-number",
-                    "&cNombre invalide.");
-            sender.sendMessage(ChatColor.translateAlternateColorCodes('&', message));
-            return true;
         }
 
         // Create and give vials

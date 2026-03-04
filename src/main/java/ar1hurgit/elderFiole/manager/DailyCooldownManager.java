@@ -1,37 +1,25 @@
 package ar1hurgit.elderFiole.manager;
 
 import ar1hurgit.elderFiole.ElderFiole;
-import org.bukkit.configuration.file.FileConfiguration;
-import org.bukkit.configuration.file.YamlConfiguration;
 
-import java.io.File;
-import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
 public class DailyCooldownManager {
     private final ElderFiole plugin;
-    private File dataFile;
-    private FileConfiguration dataConfig;
+    private final Map<UUID, Long> cooldowns;
 
     public DailyCooldownManager(ElderFiole plugin) {
         this.plugin = plugin;
-        loadData();
+        this.cooldowns = new HashMap<>();
+        loadCooldowns();
     }
 
-    private void loadData() {
-        dataFile = new File(plugin.getDataFolder(), "data.yml");
-
-        if (!dataFile.exists()) {
-            try {
-                plugin.getDataFolder().mkdirs();
-                dataFile.createNewFile();
-            } catch (IOException e) {
-                plugin.getLogger().warning("Could not create data.yml: " + e.getMessage());
-            }
-        }
-
-        dataConfig = YamlConfiguration.loadConfiguration(dataFile);
+    private void loadCooldowns() {
+        Map<UUID, Long> loadedCooldowns = plugin.getDatabaseManager().loadAllDailyCooldowns();
+        cooldowns.putAll(loadedCooldowns);
     }
 
     private long getCooldownDuration() {
@@ -39,45 +27,30 @@ public class DailyCooldownManager {
         return TimeUnit.HOURS.toMillis(hours);
     }
 
-    public FileConfiguration getDataConfig() {
-        return dataConfig;
-    }
-
-    public void saveData() {
-        try {
-            dataConfig.save(dataFile);
-        } catch (IOException e) {
-            plugin.getLogger().warning("Could not save data.yml: " + e.getMessage());
-        }
-    }
-
     public boolean canUseDaily(UUID playerId) {
-        String path = "daily-cooldown." + playerId.toString();
+        Long lastUse = cooldowns.get(playerId);
 
-        if (!dataConfig.contains(path)) {
+        if (lastUse == null) {
             return true;
         }
 
-        long lastUse = dataConfig.getLong(path);
         long currentTime = System.currentTimeMillis();
-
         return (currentTime - lastUse) >= getCooldownDuration();
     }
 
     public void setLastUse(UUID playerId) {
-        String path = "daily-cooldown." + playerId.toString();
-        dataConfig.set(path, System.currentTimeMillis());
-        saveData();
+        long currentTime = System.currentTimeMillis();
+        cooldowns.put(playerId, currentTime);
+        plugin.getDatabaseManager().saveDailyCooldown(playerId, currentTime);
     }
 
     public String getTimeRemaining(UUID playerId) {
-        String path = "daily-cooldown." + playerId.toString();
+        Long lastUse = cooldowns.get(playerId);
 
-        if (!dataConfig.contains(path)) {
+        if (lastUse == null) {
             return "0h 0m";
         }
 
-        long lastUse = dataConfig.getLong(path);
         long currentTime = System.currentTimeMillis();
         long remainingTime = getCooldownDuration() - (currentTime - lastUse);
 
@@ -89,5 +62,15 @@ public class DailyCooldownManager {
         long minutes = TimeUnit.MILLISECONDS.toMinutes(remainingTime) % 60;
 
         return hours + "h " + minutes + "m";
+    }
+
+    /**
+     * Import cooldown data from a map (used for migration from YAML)
+     */
+    public void importCooldowns(Map<UUID, Long> cooldownData) {
+        for (Map.Entry<UUID, Long> entry : cooldownData.entrySet()) {
+            cooldowns.put(entry.getKey(), entry.getValue());
+            plugin.getDatabaseManager().saveDailyCooldown(entry.getKey(), entry.getValue());
+        }
     }
 }
